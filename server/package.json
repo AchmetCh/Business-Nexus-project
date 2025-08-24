@@ -1,15 +1,14 @@
 {
-   "name": "business-nexus-backend",
+  "author": "Achmet Chasankil",
+  "license": "ISC",
+  "name": "business-nexus-backend",
   "version": "1.0.0",
   "description": "Backend for Business Nexus - Professional Networking Platform",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
-  "keywords": [business, networking, professional, platform, backend, express, mongoose, socket.io, node.js],
-  "author": "Achmet Chasankil",
-  "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
