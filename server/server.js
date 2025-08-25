@@ -5,10 +5,10 @@ const http = require('http');
 const socketIo = require('socket.io');
 require('dotenv').config();
 
-// const authRoutes = require('./routes/auth');
-// const profileRoutes = require('./routes/profile');
-// const requestRoutes = require('./routes/request');
-// const chatRoutes = require('./routes/chat');
+const authRoutes = require('./routes/auth');
+const profileRoutes = require('./routes/profile');
+const requestRoutes = require('./routes/request');
+const chatRoutes = require('./routes/chat');
 
 const app = express();
 const server = http.createServer(app);
@@ -30,10 +30,10 @@ mongoose.connect(process.env.MONGO_URL)
   .catch(err => console.log('❌ MongoDB connection error:', err));
 
 // Routes
-// app.use('/api/auth', authRoutes);
-// app.use('/api/profile', profileRoutes);
-// app.use('/api/request', requestRoutes);
-// app.use('/api/chat', chatRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/request', requestRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Socket.io for real-time chat
 io.on('connection', (socket) => {
