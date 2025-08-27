@@ -6,6 +6,8 @@ exports.getMessages = async (req, res) => {
     const { userId } = req.params;
     const currentUserId = req.user.userId;
 
+    console.log('Getting messages between:', currentUserId, 'and', userId); // Debug
+
     const messages = await Chat.find({
       $or: [
         { senderId: currentUserId, receiverId: userId },
@@ -16,8 +18,11 @@ exports.getMessages = async (req, res) => {
       .populate('receiverId', 'name')
       .sort({ timestamp: 1 });
 
+    console.log('Found messages:', messages.length); // Debug
+
     res.json(messages);
   } catch (error) {
+    console.error('Error getting messages:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -27,6 +32,8 @@ exports.sendMessage = async (req, res) => {
   try {
     const { receiverId, message } = req.body;
     const senderId = req.user.userId;
+
+    console.log('Sending message from', senderId, 'to', receiverId); // Debug
 
     const newMessage = new Chat({
       senderId,
@@ -40,11 +47,14 @@ exports.sendMessage = async (req, res) => {
       .populate('senderId', 'name')
       .populate('receiverId', 'name');
 
+    console.log('Message saved:', populatedMessage); // Debug
+
     res.status(201).json({
       message: 'Message sent successfully',
       chat: populatedMessage
     });
   } catch (error) {
+    console.error('Error sending message:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

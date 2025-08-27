@@ -1,19 +1,24 @@
 const express = require('express');
-const profileController = require('../controllers/profileController');
+const {
+  getProfile,
+  updateProfile,
+  getEntrepreneurs,
+  getInvestors
+} = require('../controllers/profileController');
 const { auth } = require('../middleware/auth');
 
 const router = express.Router();
 
-// GET /api/profile/:id - Get profile by ID
-router.get('/:id', auth, profileController.getProfile);
+// PUT /api/profile - Update own profile (must come before /:id)
+router.put('/', auth, updateProfile);
 
-// PUT /api/profile - Update own profile
-router.put('/', auth, profileController.updateProfile);
+// GET /api/profile/users/entrepreneurs - Get all entrepreneurs (specific routes first)
+router.get('/users/entrepreneurs', auth, getEntrepreneurs);
 
-// GET /api/profile/entrepreneurs - Get all entrepreneurs
-router.get('/users/entrepreneurs', auth, profileController.getAllEntrepreneurs);
+// GET /api/profile/users/investors - Get all investors
+router.get('/users/investors', auth, getInvestors);
 
-// GET /api/profile/investors - Get all investors
-router.get('/users/investors', auth, profileController.getAllInvestors);
+// GET /api/profile/:id - Get profile by ID (dynamic route last)
+router.get('/:id', auth, getProfile);
 
 module.exports = router;

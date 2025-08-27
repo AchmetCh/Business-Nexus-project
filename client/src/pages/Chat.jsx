@@ -19,23 +19,29 @@ const Chat = () => {
 
   useEffect(() => {
     // Initialize socket connection
-    const newSocket = io('http://localhost:5000')
+    const newSocket = io('http://localhost:8000')
     setSocket(newSocket)
+
+    // Announce user is online
+    newSocket.emit('user-online', currentUser.id)
 
     // Join room
     newSocket.emit('join-room', roomId)
 
     // Listen for messages
     newSocket.on('receive-message', (data) => {
-      setMessages(prev => [...prev, {
-        senderId: { _id: data.senderId, name: data.senderName },
-        message: data.message,
-        timestamp: new Date()
-      }])
+      // Only add message if it's not from current user (to avoid duplication)
+      if (data.senderId !== currentUser.id) {
+        setMessages(prev => [...prev, {
+          senderId: { _id: data.senderId, name: data.senderName },
+          message: data.message,
+          timestamp: new Date()
+        }])
+      }
     })
 
     return () => newSocket.close()
-  }, [roomId])
+  }, [roomId, currentUser.id])
 
   useEffect(() => {
     fetchChatData()
@@ -47,10 +53,17 @@ const Chat = () => {
 
   const fetchChatData = async () => {
     try {
+      console.log('Fetching chat data for userId:', userId); // Debug
+      console.log('Current user ID:', currentUser.id); // Debug
+      
       const [messagesResponse, profileResponse] = await Promise.all([
         chatAPI.getMessages(userId),
         profileAPI.getProfile(userId)
       ])
+      
+      console.log('Messages:', messagesResponse.data); // Debug
+      console.log('Other user profile:', profileResponse.data); // Debug
+      
       setMessages(messagesResponse.data)
       setOtherUser(profileResponse.data)
     } catch (error) {
@@ -73,28 +86,42 @@ const Chat = () => {
       message: newMessage.trim()
     }
 
+    const messageToAdd = {
+      senderId: { _id: currentUser.id, name: currentUser.name },
+      message: newMessage.trim(),
+      timestamp: new Date()
+    }
+
+    console.log('Sending message:', messageData); // Debug
+    console.log('Room ID:', roomId); // Debug
+
+    // Add to local messages immediately
+    setMessages(prev => [...prev, messageToAdd])
+    setNewMessage('')
+
     try {
       // Send to API
-      await chatAPI.sendMessage(messageData)
+      const response = await chatAPI.sendMessage(messageData)
+      console.log('Message API response:', response.data); // Debug
 
       // Send via socket
-      socket.emit('send-message', {
-        roomId,
-        senderId: currentUser.id,
-        senderName: currentUser.name,
-        message: newMessage.trim()
-      })
-
-      // Add to local messages
-      setMessages(prev => [...prev, {
-        senderId: { _id: currentUser.id, name: currentUser.name },
-        message: newMessage.trim(),
-        timestamp: new Date()
-      }])
-
-      setNewMessage('')
+      if (socket) {
+        console.log('Emitting socket message to room:', roomId); // Debug
+        socket.emit('send-message', {
+          roomId,
+          senderId: currentUser.id,
+          senderName: currentUser.name,
+          message: messageToAdd.message
+        })
+      } else {
+        console.error('Socket not connected!'); // Debug
+      }
     } catch (error) {
       console.error('Error sending message:', error)
+      // Remove message from local state if API call failed
+      setMessages(prev => prev.filter(msg => 
+        !(msg.senderId._id === currentUser.id && msg.message === messageToAdd.message && msg.timestamp === messageToAdd.timestamp)
+      ))
     }
   }
 

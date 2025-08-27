@@ -4,7 +4,7 @@ const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
 require('dotenv').config();
-
+const PORT = process.env.PORT ;
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const requestRoutes = require('./routes/request');
@@ -35,9 +35,18 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/request', requestRoutes);
 app.use('/api/chat', chatRoutes);
 
+
 // Socket.io for real-time chat
+const activeUsers = new Map();
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
+
+  // Handle user joining
+  socket.on('user-online', (userId) => {
+    activeUsers.set(userId, socket.id);
+    console.log(`User ${userId} is online`);
+  });
 
   socket.on('join-room', (roomId) => {
     socket.join(roomId);
@@ -45,15 +54,25 @@ io.on('connection', (socket) => {
   });
 
   socket.on('send-message', (data) => {
-    socket.to(data.roomId).emit('receive-message', data);
+    // Broadcast to room including sender
+    io.to(data.roomId).emit('receive-message', data);
+    console.log('Message sent to room:', data.roomId);
   });
 
   socket.on('disconnect', () => {
+    // Remove user from active users
+    for (let [userId, socketId] of activeUsers.entries()) {
+      if (socketId === socket.id) {
+        activeUsers.delete(userId);
+        console.log(`User ${userId} went offline`);
+        break;
+      }
+    }
     console.log('User disconnected:', socket.id);
   });
 });
 
-const PORT = process.env.PORT || 5000;
+
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

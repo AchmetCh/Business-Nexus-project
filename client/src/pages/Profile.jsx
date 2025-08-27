@@ -21,7 +21,12 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     try {
+      console.log('Fetching profile for ID:', id); // Debug log
+      console.log('Current user ID:', currentUser.id); // Debug log
+      
       const response = await profileAPI.getProfile(id)
+      console.log('Profile API response:', response.data); // Debug log
+      
       setProfile(response.data)
       setFormData(response.data)
     } catch (error) {

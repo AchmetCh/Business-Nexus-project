@@ -14,7 +14,7 @@ exports.register = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(password, parseInt(SALT_ROUNDS));
     const user = new User({ name, email, password: hashedPassword, role });
     await user.save();
     //Generaete JWT token

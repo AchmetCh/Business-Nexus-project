@@ -14,7 +14,12 @@ const EntrepreneurDashboard = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await requestAPI.getRequests()
+      const response = await requestAPI.getRequests({
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      })
       setRequests(response.data)
     } catch (error) {
       console.error('Error fetching requests:', error)

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/Authcontext'
 import { authAPI } from '../services/api'
 
 const Login = () => {
@@ -33,6 +33,7 @@ const Login = () => {
       navigate(`/dashboard/${user.role}`)
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed')
+      console.error(err)
     } finally {
       setLoading(false)
     }
