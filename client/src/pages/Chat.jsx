@@ -19,7 +19,7 @@ const Chat = () => {
 
   useEffect(() => {
     // Initialize socket connection
-    const newSocket = io('http://localhost:8000')
+    const newSocket = io('https://nexusbackend.myrender.eu/')
     setSocket(newSocket)
 
     // Announce user is online
