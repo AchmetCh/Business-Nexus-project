@@ -101,7 +101,7 @@ const Login = () => {
                   {/* Demo Account */}
                   <p className="mt-2 text-muted" style={{ fontSize: '12px' }}>
                     <strong>Demo Account:</strong><br />
-                    Investor - Email: entrepreneur@test.com, Password: 123456<br />
+                    Investor - Email: investor@test.com, Password: 123456<br />
                     Entrepreneur - Email: entrepreneur@test.com, Password: 123456
                   </p>
                 </div>
